@@ -111,9 +111,27 @@ class _AddressSearchScreenState extends State<AddressSearchScreen> {
                         TextField(
                           controller: _cepController,
                           keyboardType: TextInputType.number,
-                          maxLength: 9,
+                          maxLength: 10,
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(RegExp(r'[0-9-]')),
+                            // Adiciona a máscara de CEP automaticamente
+                            TextInputFormatter.withFunction((oldValue, newValue) {
+                              if (newValue.text.length <= 5) {
+                                return newValue.copyWith(
+                                  text: newValue.text,
+                                  selection: TextSelection.collapsed(offset: newValue.text.length),
+                                );
+                              } else if (newValue.text.length <= 7) {
+                                final cepParte1 = newValue.text.substring(0, 5);
+                                final cepParte2 = newValue.text.substring(5);
+                                return newValue.copyWith(
+                                  text: '$cepParte1-$cepParte2',
+                                  selection: TextSelection.collapsed(offset: newValue.text.length + 1),
+                                );
+                              } else {
+                                return oldValue;
+                              }
+                            }),
                           ],
                           textInputAction: TextInputAction.search,
                           onSubmitted: (_) => _searchAddress(),
